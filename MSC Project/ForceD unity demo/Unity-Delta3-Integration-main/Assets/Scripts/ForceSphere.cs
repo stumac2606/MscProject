@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -55,14 +55,12 @@ public class DLLImportTest : MonoBehaviour
     private bool applyingRegularForce = true;
     private bool isRandomForceOn = false;
 
-    public float repelForceTest = 1.0f; 
+    public float repelForceTest = 1.0f;
     private float repellingForceMultiplier = 1.0f;
     public float maxRepellingforceDistance = 2.0f; // The distance where repelling force is at its maximum
 
     public GameObject forceSphere;
     private bool repellingForceOn = false;
-
-
 
     public Vector3 DhdPosition = Vector3.zero;
 
@@ -183,98 +181,58 @@ public class DLLImportTest : MonoBehaviour
                 EndEffector.transform.position = DhdPosition;
             }
 
+          
 
-            // Method to scale the EndEffctors movment in unity 
-            double px1 = 0, py1 = 0, pz1 = 0;
-            if (dhdGetPosition(ref px1, ref py1, ref pz1, defaultId) >= 0)
+
+            //Applying a repelling force to target sphere
+            double px = 0, py = 0, pz = 0;
+            if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
             {
-                // Scale the haptic device's position
-                Vector3 scaledHapticPosition = new Vector3((float)(px1 * 100), (float)(pz1 * 100), (float)(py1 * 100));
+                Vector3 heading = TargetSphere.transform.position - EndEffector.transform.position;
+                float distance = heading.magnitude;
+                Vector3 direction = heading.normalized;
 
-                // Update the position of the EndEffector
-                EndEffector.transform.position = scaledHapticPosition;
+                // Calculate the repelling force based on the distance
+                float repellingForce = CalculateRepellingForce(distance);
+
+                // Apply the force in the opposite direction of the heading
+                Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
+
+                // Apply the repelling force
+                ApplyForceToHapticDevice(repellingForceVector);
             }
 
-            // Applying attractive force towards TargetSphere 
-            if (forcesOn)
+            //applying forces to the forceSpheres
+            // Check if targetSphere is within range of forceSphere
+            if (IsTargetInRangeOfForceSphere())
             {
-                //Applying attractive forces and turning off the forces when inside the sphere 
-                /*double px = 0, py = 0, pz = 0;
-                if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
-                {
-                    Vector3 heading = TargetSphere.transform.position - EndEffector.transform.position;
-                    float distance = heading.magnitude;
-                    Vector3 direction = heading / distance;
-                    Vector3 force = new Vector3((float)direction.x * (float)forceTest, (float)direction.y * (float)forceTest, (float)direction.z * (float)forceTest);
-
-                    if (distance < distanceThreshold)
-                    {
-                        ApplyForceToHapticDevice(Vector3.zero);
-                    }
-                    else
-                    {
-                        ApplyForceToHapticDevice(force);
-                    }
-                }*/
-
-
-                //Applying a repelling force to target sphere
-                /*double px = 0, py = 0, pz = 0;
-                if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
-                {
-                    Vector3 heading = TargetSphere.transform.position - EndEffector.transform.position;
-                    float distance = heading.magnitude;
-                    Vector3 direction = heading.normalized;
-
-                    // Calculate the repelling force based on the distance
-                    float repellingForce = CalculateRepellingForce(distance);
-
-                    // Apply the force in the opposite direction of the heading
-                    Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
-
-                    // Apply the repelling force
-                    ApplyForceToHapticDevice(repellingForceVector);
-                }*/
-
-                //applying forces to the forceSpheres
-                // Check if targetSphere is within range of forceSphere
-
-                double px = 0, py = 0, pz = 0;
-                if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
-                {
-                    /*if (IsTargetInRangeOfForceSphere())
-                    {
-                        repellingForceOn = true; // Turn on the forces if targetSphere is within range
-                    }
-                    else
-                    {
-                        repellingForceOn = false; // Turn off the forces if targetSphere is not within range
-                    }*/
-
-                    //if (repellingForceOn)
-                    
-                        // Calculate repelling force based on distance from forceSphere
-                        //float repellingForce = CalculateRepellingForceFromForceSphere();
-                        Vector3 heading = forceSphere.transform.position - EndEffector.transform.position;
-                        float distance = heading.magnitude;
-                        Vector3 direction = heading.normalized;
-
-                        // Calculate the repelling force based on the distance
-                        float repellingForce = CalculateRepellingForce(distance);
-
-                        // Apply the force in the opposite direction of the forceSphere
-                        Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
-
-                        // Apply the repelling force to the haptic device
-                        ApplyForceToHapticDevice(repellingForceVector);
-                    
-                }
-                    
+                forcesOn = true; // Turn on the forces if targetSphere is within range
+            }
+            else
+            {
+                forcesOn = false; // Turn off the forces if targetSphere is not within range
             }
 
+            if (forcesOn && IsEndEffectorNearForceSphere())
+            {
+                // Calculate repelling force based on distance from forceSphere
+                //float repellingForce = CalculateRepellingForceFromForceSphere();
+                Vector3 heading = TargetSphere.transform.position - EndEffector.transform.position;
+                float distance = heading.magnitude;
+                Vector3 direction = heading.normalized;
+
+                // Calculate the repelling force based on the distance
+                float repellingForce = CalculateRepellingForce(distance);
+
+                // Apply the force in the opposite direction of the forceSphere
+                Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
+
+                // Apply the repelling force to the haptic device
+                ApplyForceToHapticDevice(repellingForceVector);
+            }
         }
-    }
 
+    }
 
     private void ApplyForceToHapticDevice(Vector3 force)
     {
@@ -282,9 +240,13 @@ public class DLLImportTest : MonoBehaviour
     }
 
 
+
+
+
     private float CalculateRepellingForce(float distance)
-    {    
-        float maxDistanceCalc= maxRepellingforceDistance * distanceThreshold;
+    {
+
+        float maxDistanceCalc = maxRepellingforceDistance * distanceThreshold;
         float clampedDistance = Mathf.Clamp(distance, distanceThreshold, maxDistanceCalc);
 
         // Calculate the normalized force (0 to 1) based on distance
@@ -315,7 +277,7 @@ public class DLLImportTest : MonoBehaviour
     private bool IsEndEffectorNearForceSphere()
     {
         float distanceToEndEffector = Vector3.Distance(EndEffector.transform.position, forceSphere.transform.position);
-        return distanceToEndEffector <= maxRepellingforceDistance; // Set your desired threshold value here
+        return distanceToEndEffector <= distanceThreshold; // Set your desired threshold value here
     }
 
     private Vector3 GetForceSphereDirection()
@@ -510,3 +472,4 @@ public class DLLImportTest : MonoBehaviour
         dhdSetStandardGravity(g, defaultId);
     }
 }
+*/
