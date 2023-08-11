@@ -58,10 +58,9 @@ public class DLLImportTest : MonoBehaviour
     public float repelForceTest = 1.0f; 
     private float repellingForceMultiplier = 1.0f;
     public float maxRepellingforceDistance = 2.0f; // The distance where repelling force is at its maximum
-
-    public GameObject forceSphere;
+  
     private bool repellingForceOn = false;
-
+    
 
 
     public Vector3 DhdPosition = Vector3.zero;
@@ -111,6 +110,7 @@ public class DLLImportTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("DLLImportTest Start method called");
         DhdOpen();
         if (dhdEnableForce(new UIntPtr(1), defaultId) >= 0)
         {
@@ -123,11 +123,14 @@ public class DLLImportTest : MonoBehaviour
         }
 
         UpdateDHDStatus();
+
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("DLLImportTest Update method called");
         if (Input.GetKeyDown(KeyCode.C))
         {
             DhdClose();
@@ -182,7 +185,7 @@ public class DLLImportTest : MonoBehaviour
                 //EndEffector is unity object, this matches the position of haptic device (DhdPosition)
                 EndEffector.transform.position = DhdPosition;
             }
-
+           
 
             // Method to scale the EndEffctors movment in unity 
             double px1 = 0, py1 = 0, pz1 = 0;
@@ -219,7 +222,7 @@ public class DLLImportTest : MonoBehaviour
 
 
                 //Applying a repelling force to target sphere
-                /*double px = 0, py = 0, pz = 0;
+                double px = 0, py = 0, pz = 0;
                 if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
                 {
                     Vector3 heading = TargetSphere.transform.position - EndEffector.transform.position;
@@ -234,28 +237,29 @@ public class DLLImportTest : MonoBehaviour
 
                     // Apply the repelling force
                     ApplyForceToHapticDevice(repellingForceVector);
-                }*/
+                }
+
+
 
                 //applying forces to the forceSpheres
                 // Check if targetSphere is within range of forceSphere
 
-                double px = 0, py = 0, pz = 0;
-                if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
+               /* foreach (GameObject sphere in sphereList)
                 {
-                    /*if (IsTargetInRangeOfForceSphere())
+                    *//*if (IsTargetInRangeOfForceSphere(sphere))
                     {
                         repellingForceOn = true; // Turn on the forces if targetSphere is within range
                     }
                     else
                     {
                         repellingForceOn = false; // Turn off the forces if targetSphere is not within range
-                    }*/
-
-                    //if (repellingForceOn)
-                    
+                    }*//*
+                    repellingForceOn = true;
+                    if (repellingForceOn)
+                    {
                         // Calculate repelling force based on distance from forceSphere
                         //float repellingForce = CalculateRepellingForceFromForceSphere();
-                        Vector3 heading = forceSphere.transform.position - EndEffector.transform.position;
+                        Vector3 heading = sphere.transform.position - EndEffector.transform.position;
                         float distance = heading.magnitude;
                         Vector3 direction = heading.normalized;
 
@@ -267,9 +271,10 @@ public class DLLImportTest : MonoBehaviour
 
                         // Apply the repelling force to the haptic device
                         ApplyForceToHapticDevice(repellingForceVector);
-                    
-                }
-                    
+                    }
+
+                }*/
+
             }
 
         }
@@ -306,19 +311,37 @@ public class DLLImportTest : MonoBehaviour
 
     }
 
-    private bool IsTargetInRangeOfForceSphere()
+    public List<GameObject> sphereList = new List<GameObject>(50);
+    public void AddSphereTooList(GameObject sphere)
     {
-        float distanceToForceSphere = Vector3.Distance(TargetSphere.transform.position, forceSphere.transform.position);
-        return distanceToForceSphere <= 2.0f;
+        
+        sphereList.Add(sphere);
     }
 
-    private bool IsEndEffectorNearForceSphere()
+    public void DeleteForceSpheresFromList()
+    {
+        
+        foreach (GameObject sphere in sphereList)
+        {
+            Destroy(sphere);
+        }
+        sphereList.Clear();
+        
+    }
+
+    private bool IsTargetInRangeOfForceSphere(GameObject forceSphere)
+    {
+        float distanceToForceSphere = Vector3.Distance(TargetSphere.transform.position, forceSphere.transform.position);
+        return distanceToForceSphere <= 10.0f;
+    }
+
+    private bool IsEndEffectorNearForceSphere(GameObject forceSphere)
     {
         float distanceToEndEffector = Vector3.Distance(EndEffector.transform.position, forceSphere.transform.position);
         return distanceToEndEffector <= maxRepellingforceDistance; // Set your desired threshold value here
     }
 
-    private Vector3 GetForceSphereDirection()
+    private Vector3 GetForceSphereDirection(GameObject forceSphere)
     {
         return (forceSphere.transform.position - EndEffector.transform.position).normalized;
     }

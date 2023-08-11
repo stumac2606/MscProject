@@ -5,7 +5,7 @@ using UnityEngine;
 using static DLLImportTest;
 using System.Collections;
 
-public class DLLImportTest : MonoBehaviour
+public class DLLImportTest1 : MonoBehaviour
 {
 
     public enum DHD_STATUS_ENUM
@@ -73,37 +73,37 @@ public class DLLImportTest : MonoBehaviour
     public List<DHD_STATUS_ENUM> dhdStatus = new List<DHD_STATUS_ENUM>();
 
     [DllImport("dhd64.dll")]
-    extern static int dhdOpen();
+    extern static int dhdOpen1();
 
     [DllImport("dhd64.dll")]
-    extern static int dhdStop(IntPtr id);
+    extern static int dhdStop1(IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdClose(IntPtr id);
+    extern static int dhdClose1(IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdGetStatus(int[] dhdStatus, IntPtr id);
+    extern static int dhdGetStatus1(int[] dhdStatus, IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdSetBrakes(int val, IntPtr id);
+    extern static int dhdSetBrakes1(int val, IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static IntPtr dhdErrorGetLastStr();
+    extern static IntPtr dhdErrorGetLastStr1();
 
     [DllImport("dhd64.dll")]
-    extern static void dhdSleep(double sec);
+    extern static void dhdSleep1(double sec);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdGetPosition(ref double px, ref double py, ref double pz, IntPtr id);
+    extern static int dhdGetPosition1(ref double px, ref double py, ref double pz, IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdEnableForce(UIntPtr val, IntPtr id);
+    extern static int dhdEnableForce1(UIntPtr val, IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdSetStandardGravity(double g, IntPtr id);
+    extern static int dhdSetStandardGravity1(double g, IntPtr id);
 
     [DllImport("dhd64.dll")]
-    extern static int dhdSetForce(double fx, double fy, double fz, IntPtr id);
+    extern static int dhdSetForce1(double fx, double fy, double fz, IntPtr id);
 
 
     // Start is called before the first frame update

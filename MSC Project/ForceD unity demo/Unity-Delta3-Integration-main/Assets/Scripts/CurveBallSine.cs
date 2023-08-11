@@ -17,22 +17,30 @@ public class NonLinearMovement : MonoBehaviour
     private float frequency;
 
     public GameObject spherePrefab;
-    public List<GameObject> forceSpheres { get; private set; } = new List<GameObject>();
+    public List<GameObject> forceSpheres = new List<GameObject>();
+    public DLLImportTest dLLImportTest;
 
     public float sphereDistance = 0.1f; // Distance between spheres along the path
     public float deleteThreshold = 0.5f; // Distance threshold to delete spheres near the target
 
+
+
     private void Start()
     {
+        
         initialPosition = transform.position;
         GenerateRandomTarget();
         GenerateSpheresAlongPath();
+
+        Debug.Log("spherePrefab: " + spherePrefab);
+        Debug.Log("dLLImportTest: " + dLLImportTest);
     }
 
 
 
     private void Update()
     {
+        
         if (moving)
         {
             float distanceCovered = (Time.time - startTime) * speed;
@@ -68,6 +76,7 @@ public class NonLinearMovement : MonoBehaviour
                 moving = false;
                 initialPosition = targetPosition; // Set new initial position
                 DeleteForceSpheres();
+                dLLImportTest.DeleteForceSpheresFromList();
                 GenerateRandomTarget();
                 GenerateSpheresAlongPath();
             }        
@@ -102,7 +111,7 @@ public class NonLinearMovement : MonoBehaviour
             }
 
 
-        } while (Vector3.Distance(initialPosition, newTarget) < 10f);
+        } while (Vector3.Distance(initialPosition, newTarget) < 2f); // find new target that has x distance away from previous target 
 
         targetPosition = newTarget;
         startTime = Time.time;
@@ -110,18 +119,15 @@ public class NonLinearMovement : MonoBehaviour
         moving = true;
         xyz = Random.Range(0, 3);
         amplitude = Random.Range(1f, 5.0f);
-        frequency = Random.Range(1.0f, 2.0f);
+        frequency = Random.Range(0.5f, 2.0f);
 
-        if (Vector3.Distance(initialPosition, targetPosition) < 10f)
-        {
-            DeleteForceSpheres();
-        }
+        
     }
 
     private void GenerateSpheresAlongPath()
     {
         float totalDistance = Vector3.Distance(initialPosition, targetPosition);
-        int numSpheres = Mathf.FloorToInt(totalDistance / sphereDistance);
+        int numSpheres = Mathf.FloorToInt(totalDistance / 1.0f);
 
         for (int i = 0; i <= numSpheres; i++)
         {
@@ -142,19 +148,18 @@ public class NonLinearMovement : MonoBehaviour
             }
 
             GameObject sphere = Instantiate(spherePrefab, spherePosition, Quaternion.identity);
-            forceSpheres.Add(sphere);
+            //Debug.Log("Instantiated sphere: " + sphere);
+            //forceSpheres.Add(sphere);
+            dLLImportTest.AddSphereTooList(sphere);
 
         }
     }
-
-
 
 
     private void DeleteForceSpheres()
     {
         foreach (GameObject sphere in forceSpheres)
         {
-            
             Destroy(sphere);
         }
         forceSpheres.Clear();
