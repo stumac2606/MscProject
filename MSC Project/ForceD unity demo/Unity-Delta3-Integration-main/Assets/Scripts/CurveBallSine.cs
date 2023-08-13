@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
@@ -17,6 +17,15 @@ public class NonLinearMovement : MonoBehaviour
     private float frequency;
 
     public GameObject spherePrefab;
+
+    public GameObject forceSphere1;
+    private Vector3 initialPositionf1;
+    
+
+    public GameObject forceSphere2;
+    public GameObject forceSphere3;
+    public GameObject forceSphere4;
+    private Vector3 forceSphereOffset1;
     public List<GameObject> forceSpheres = new List<GameObject>();
     public DLLImportTest dLLImportTest;
 
@@ -47,18 +56,19 @@ public class NonLinearMovement : MonoBehaviour
             float journeyFraction = distanceCovered / journeyLength;
 
             Vector3 newPosition = Vector3.Lerp(initialPosition, targetPosition, journeyFraction);
+            Vector3 f1newPosition = Vector3.Lerp(initialPositionf1, targetPosition, journeyFraction);
 
             if (xyz == 0)
             {
-                newPosition.x += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
+                newPosition.x += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;               
             }
             else if (xyz == 1)
             {
-                newPosition.y += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
+                newPosition.y += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;              
             }
             else
             {
-                newPosition.z += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
+                newPosition.z += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;                
             }
 
 
@@ -69,12 +79,16 @@ public class NonLinearMovement : MonoBehaviour
             newPosition.z = Mathf.Clamp(newPosition.z, -10f, 10f);
 
             transform.position = newPosition;
+            forceSphere1.transform.position = f1newPosition;
+
+
 
 
             if (journeyFraction >= 1f)
             {
                 moving = false;
                 initialPosition = targetPosition; // Set new initial position
+                initialPositionf1 = targetPosition;
                 DeleteForceSpheres();
                 dLLImportTest.DeleteForceSpheresFromList();
                 GenerateRandomTarget();
@@ -83,10 +97,6 @@ public class NonLinearMovement : MonoBehaviour
             
         }
     }
-
-  
-
-
 
     private void GenerateRandomTarget()
     {
@@ -111,7 +121,7 @@ public class NonLinearMovement : MonoBehaviour
             }
 
 
-        } while (Vector3.Distance(initialPosition, newTarget) < 2f); // find new target that has x distance away from previous target 
+        } while (Vector3.Distance(initialPosition, newTarget) < 5f); // find new target that has x distance away from previous target 
 
         targetPosition = newTarget;
         startTime = Time.time;
@@ -149,7 +159,7 @@ public class NonLinearMovement : MonoBehaviour
 
             GameObject sphere = Instantiate(spherePrefab, spherePosition, Quaternion.identity);
             //Debug.Log("Instantiated sphere: " + sphere);
-            //forceSpheres.Add(sphere);
+            forceSpheres.Add(sphere);
             dLLImportTest.AddSphereTooList(sphere);
 
         }
@@ -168,3 +178,4 @@ public class NonLinearMovement : MonoBehaviour
 
 
 }
+*/
