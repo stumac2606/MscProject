@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using static DLLImportTest;
 using System.Collections;
+using UnityEngine.ProBuilder.Shapes;
 
 public class DLLImportTest : MonoBehaviour
 {
@@ -58,10 +59,10 @@ public class DLLImportTest : MonoBehaviour
 
 
     //Variables for repelling force 
-    public float repelForceTest = 1.0f; 
+    public float repelForceTest = 1.0f;
     private float repellingForceMultiplier = 1.0f;
     public float maxRepellingforceDistance = 2.0f; // The distance where repelling force is at its maximum
-  
+
     private bool repellingForceOn = false;
 
     //Variables for non linear movement 
@@ -74,14 +75,7 @@ public class DLLImportTest : MonoBehaviour
     private int xyz; // Change the type to int to correctly select the axis
     private float amplitude;
     private float frequency;
-    //public GameObject spherePrefab;
-    //public List<GameObject> sphereList = new List<GameObject>();
-    /*public GameObject forceSphere1;
-    public GameObject forceSphere2;
-    public GameObject forceSphere3;
-    public GameObject forceSphere4;*/
-
-    public Transform ForceChannel;
+    public GameObject spherePrefab;
 
 
     public Vector3 DhdPosition = Vector3.zero;
@@ -128,9 +122,15 @@ public class DLLImportTest : MonoBehaviour
     extern static int dhdSetForce(double fx, double fy, double fz, IntPtr id);
 
 
+
+    // Pooled list of spheres
+    GameObject[] spheres = new GameObject[30];
+
+
     // Start is called before the first frame update
     void Start()
     {
+
         Debug.Log("DLLImportTest Start method called");
         DhdOpen();
         if (dhdEnableForce(new UIntPtr(1), defaultId) >= 0)
@@ -142,12 +142,18 @@ public class DLLImportTest : MonoBehaviour
         {
             Debug.LogError("ERROR SETTING FORCES TO ON");
         }
+        // Instantiate your spheres once
+        for (int i = 0; i < spheres.Length; i++)
+        {
+            spheres[i] = Instantiate(spherePrefab, Vector3.zero, Quaternion.identity);
+            spheres[i].SetActive(false);
+        }
 
         UpdateDHDStatus();
         initialPosition = TargetSphere.transform.position;
         GenerateRandomTarget();
-        //GenerateSpheresAlongPath();
-        
+        GenerateSpheresAlongPath();
+
     }
 
     // Update is called once per frame
@@ -195,11 +201,7 @@ public class DLLImportTest : MonoBehaviour
         {
             //ApplyForceTest(false, new Vector3((float)0.0f, (float)0.0f, (float)0.0f));
         }
-        
-        
         sineMovement();
-        forceCyclinderFollow();
-        
 
     }
 
@@ -224,48 +226,26 @@ public class DLLImportTest : MonoBehaviour
 
             if (forcesOn)
             {
-                
+
                 //ApplyAttractiveForce(); //to target sphere 
                 //ApplyRepellingForceToTarget(); //to target sphere 
-                ApplyRepellingForceToSphere();
 
                 //applying forces to the forceSpheres              
-                /*foreach (GameObject sphere in sphereList)
+                foreach (GameObject sphere in spheres)
                 {
-                    if (IsTargetInRangeOfForceSphere(sphere))
-                    {
-                        repellingForceOn = true; // Turn on the forces if targetSphere is within range
-                    }
-                    else
-                    {
-                        repellingForceOn = false; // Turn off the forces if targetSphere is not within range
-                    }
-                    repellingForceOn = true;
-                    if (repellingForceOn)
-                    {
-                        // Calculate repelling force based on distance from forceSphere
-                        //float repellingForce = CalculateRepellingForceFromForceSphere();
-                        Vector3 heading = sphere.transform.position - EndEffector.transform.position;
-                        float distance = heading.magnitude;
-                        Vector3 direction = heading.normalized;
 
-                        // Calculate the repelling force based on the distance
-                        float repellingForce = CalculateRepellingForce(distance);
-
-                        // Apply the force in the opposite direction of the forceSphere
-                        Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
-
-                        // Apply the repelling force to the haptic device
-                        ApplyForceToHapticDevice(repellingForceVector);
+                    if (Vector3.Distance(TargetSphere.transform.position, sphere.transform.position) <= 2.0f)
+                    {
+                        ApplyRepellingForceToSpheres(sphere);
                     }
 
-                }*/
+                }
 
             }
 
         }
     }
-    
+
     private void ApplyAttractiveForce()
     {
         double px = 0, py = 0, pz = 0;
@@ -285,9 +265,9 @@ public class DLLImportTest : MonoBehaviour
                 ApplyForceToHapticDevice(force);
             }
         }
-        
+
     }
-    
+
     private void ApplyRepellingForceToTarget()
     {
         double px = 0, py = 0, pz = 0;
@@ -298,25 +278,33 @@ public class DLLImportTest : MonoBehaviour
             Vector3 direction = heading.normalized;
 
             float repellingForce = CalculateRepellingForce(distance);
-            
+
             Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
-            
+
             ApplyForceToHapticDevice(repellingForceVector);
         }
     }
-    private void ApplyRepellingForceToSphere()
+
+    private void ApplyRepellingForceToSpheres(GameObject sphere)
     {
-        Vector3 heading = ForceChannel.transform.position - EndEffector.transform.position;
+        // Calculate repelling force based on distance from forceSphere
+        //float repellingForce = CalculateRepellingForceFromForceSphere();
+        Vector3 heading = sphere.transform.position - EndEffector.transform.position;
         float distance = heading.magnitude;
         Vector3 direction = heading.normalized;
 
+        // Calculate the repelling force based on the distance
         float repellingForce = CalculateRepellingForce(distance);
 
+        // Apply the force in the opposite direction of the forceSphere
         Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
 
+        // Apply the repelling force to the haptic device
         ApplyForceToHapticDevice(repellingForceVector);
-        
+
     }
+
+
 
     private void ApplyForceToHapticDevice(Vector3 force)
     {
@@ -325,8 +313,8 @@ public class DLLImportTest : MonoBehaviour
 
 
     private float CalculateRepellingForce(float distance)
-    {    
-        float maxDistanceCalc= maxRepellingforceDistance * distanceThreshold;
+    {
+        float maxDistanceCalc = maxRepellingforceDistance * distanceThreshold;
         float clampedDistance = Mathf.Clamp(distance, distanceThreshold, maxDistanceCalc);
 
         float normalizedForce = 1.0f - (clampedDistance - distanceThreshold) / (maxDistanceCalc - distanceThreshold);
@@ -335,69 +323,67 @@ public class DLLImportTest : MonoBehaviour
         return repellingForce;
     }
 
-    private float CalculateRepellingForceFromForceSphere()
+    private Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
     {
-        Vector3 heading = TargetSphere.transform.position - EndEffector.transform.position;
-        float distance = heading.magnitude;
+        float t2 = t * t;
+        float t3 = t2 * t;
 
-        return CalculateRepellingForce(distance);
+        Vector3 v0 = (p2 - p0) * 0.5f;
+        Vector3 v1 = (p3 - p1) * 0.5f;
 
-
+        return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
     }
+
+
 
     private void sineMovement()
     {
         if (moving)
         {
             float distanceCovered = (Time.time - startTime) * speed;
-            float journeyFraction = distanceCovered / journeyLength;
+            float t = distanceCovered / journeyLength;
 
-            Vector3 newPosition = Vector3.Lerp(initialPosition, targetPosition, journeyFraction);
-        
-
-            if (xyz == 0)
-            {
-                newPosition.x += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
-            }
-            else if (xyz == 1)
-            {
-                newPosition.y += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
-            }
-            else
-            {
-                newPosition.z += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
-            }
-
-
-            // Apply position constraints
-            newPosition.x = Mathf.Clamp(newPosition.x, -10f, 10f);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0f, 10f);
-            newPosition.z = Mathf.Clamp(newPosition.z, -10f, 10f);
-
-            TargetSphere.transform.position = newPosition;
-
-            if (journeyFraction >= 1f)
+            if (t >= 1f)
             {
                 moving = false;
                 initialPosition = targetPosition; // Set new initial position
-                //DeleteForceSpheresFromList();
-                GenerateRandomTarget();
-                //GenerateSpheresAlongPath();
-            }
 
+                DeactivateSpheres();
+                GenerateRandomTarget();
+                GenerateSpheresAlongPath();
+            }
+            else
+            {
+                Vector3 newPosition = CatmullRom(
+                    initialPosition,
+                    initialPosition,
+                    targetPosition,
+                    targetPosition,
+                    t
+                );
+
+                if (xyz == 0)
+                {
+                    newPosition.x += Mathf.Sin(t * Mathf.PI * 2 * frequency) * amplitude;
+                }
+                else if (xyz == 1)
+                {
+                    newPosition.y += Mathf.Sin(t * Mathf.PI * 2 * frequency) * amplitude;
+                }
+                else
+                {
+                    newPosition.z += Mathf.Sin(t * Mathf.PI * 2 * frequency) * amplitude;
+                }
+
+                // Apply position constraints
+                newPosition.x = Mathf.Clamp(newPosition.x, -10f, 10f);
+                newPosition.y = Mathf.Clamp(newPosition.y, 0f, 10f);
+                newPosition.z = Mathf.Clamp(newPosition.z, -10f, 10f);
+
+                TargetSphere.transform.position = newPosition;
+            }
         }
     }
-
-    /*private void forceCyclinderFollow()
-    {
-        ForceChannel.transform.LookAt(targetTransform.position);
-        if((ForceChannel.transform.position - targetTransform.position).magnitude > 2.0f){
-            ForceChannel.Translate(0.0f, 0.0f, 10 * Time.deltaTime);
-        }
-       
-    }*/
-
-
     private void GenerateRandomTarget()
     {
         Vector3 newTarget;
@@ -429,15 +415,15 @@ public class DLLImportTest : MonoBehaviour
         moving = true;
         xyz = UnityEngine.Random.Range(0, 3);
         amplitude = UnityEngine.Random.Range(1f, 5.0f);
-        frequency = UnityEngine.Random.Range(0.5f, 2.0f);
+        frequency = UnityEngine.Random.Range(0.5f, 3.0f);
 
 
     }
 
-    /*private void GenerateSpheresAlongPath()
+    private void GenerateSpheresAlongPath()
     {
         float totalDistance = Vector3.Distance(initialPosition, targetPosition);
-        int numSpheres = Mathf.FloorToInt(totalDistance / 1.0f);
+        int numSpheres = Mathf.FloorToInt(totalDistance / 0.7f);
 
         for (int i = 0; i <= numSpheres; i++)
         {
@@ -457,35 +443,28 @@ public class DLLImportTest : MonoBehaviour
                 spherePosition.z += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
             }
 
-            GameObject sphere = Instantiate(spherePrefab, spherePosition, Quaternion.identity);
-            //Debug.Log("Instantiated sphere: " + sphere);
-            AddSphereTooList(sphere);
-
+            if (i < 20)
+            {
+                spheres[i].transform.position = spherePosition;
+                spheres[i].SetActive(true);
+            }
         }
     }
-*/
-    
-   /* public void AddSphereTooList(GameObject sphere)
+
+
+    public void DeactivateSpheres()
     {
-
-        sphereList.Add(sphere);
-    }
-
-    public void DeleteForceSpheresFromList()
-    {
-
-        foreach (GameObject sphere in sphereList)
+        for (int i = 0; i < spheres.Length; i++)
         {
-            Destroy(sphere);
+            spheres[i].SetActive(false);
         }
-        sphereList.Clear();
 
-    }*/
+    }
 
-    /*private bool IsTargetInRangeOfForceSphere(GameObject forceSphere)
+    private bool IsTargetInRangeOfForceSphere(GameObject forceSphere)
     {
         float distanceToForceSphere = Vector3.Distance(TargetSphere.transform.position, forceSphere.transform.position);
-        return distanceToForceSphere <= 10.0f;
+        return distanceToForceSphere <= 1.0f;
     }
 
     private bool IsEndEffectorNearForceSphere(GameObject forceSphere)
@@ -493,11 +472,6 @@ public class DLLImportTest : MonoBehaviour
         float distanceToEndEffector = Vector3.Distance(EndEffector.transform.position, forceSphere.transform.position);
         return distanceToEndEffector <= maxRepellingforceDistance; // Set your desired threshold value here
     }
-
-    private Vector3 GetForceSphereDirection(GameObject forceSphere)
-    {
-        return (forceSphere.transform.position - EndEffector.transform.position).normalized;
-    }*/
 
     public int DhdOpen()
     {

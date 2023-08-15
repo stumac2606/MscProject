@@ -56,7 +56,7 @@ public class NonLinearMovement : MonoBehaviour
             float journeyFraction = distanceCovered / journeyLength;
 
             Vector3 newPosition = Vector3.Lerp(initialPosition, targetPosition, journeyFraction);
-            Vector3 f1newPosition = Vector3.Lerp(initialPositionf1, targetPosition, journeyFraction);
+            
 
             if (xyz == 0)
             {
@@ -90,7 +90,7 @@ public class NonLinearMovement : MonoBehaviour
                 initialPosition = targetPosition; // Set new initial position
                 initialPositionf1 = targetPosition;
                 DeleteForceSpheres();
-                dLLImportTest.DeleteForceSpheresFromList();
+                //dLLImportTest.DeleteForceSpheresFromList();
                 GenerateRandomTarget();
                 GenerateSpheresAlongPath();
             }        
@@ -160,7 +160,7 @@ public class NonLinearMovement : MonoBehaviour
             GameObject sphere = Instantiate(spherePrefab, spherePosition, Quaternion.identity);
             //Debug.Log("Instantiated sphere: " + sphere);
             forceSpheres.Add(sphere);
-            dLLImportTest.AddSphereTooList(sphere);
+            //dLLImportTest.AddSphereTooList(sphere);
 
         }
     }

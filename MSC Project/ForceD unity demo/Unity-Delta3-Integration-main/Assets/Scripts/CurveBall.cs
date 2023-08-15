@@ -1,22 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
+using static DLLImportTest;
+using System.Collections;
 
 public class BubbleMotion : MonoBehaviour
 {
     public float speed = 0.5f;
     public float frequency = 0.5f;
     public float magnitude = 3.0f;
+    public Transform targetTransform;
+
+    public Transform forceSphere;
+    public Transform forceSphere1;
+    public Transform forceSphere2;
+    public Transform forceSphere3;
     public Vector3 movementAreaSize = new Vector3(5f, 5f, 5f);
+
+    
 
     private Vector3 initialPosition;
     private float timeOffset;
 
-    public GameObject dotFront; 
-    public GameObject dotBehind;
+    
 
     private void Start()
     {
         initialPosition = transform.position;
-        timeOffset = Random.Range(0f, 100f); // Randomize the starting point of the Perlin noise.
+        timeOffset = UnityEngine.Random.Range(0f, 100f); // Randomize the starting point of the Perlin noise.
     }
 
 
@@ -41,16 +53,35 @@ public class BubbleMotion : MonoBehaviour
         // Move the object smoothly.
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * speed);
 
-        // Update the positions of the dotFront and dotBehind objects.
-        UpdateDotPosition(dotFront, newPosition, Vector3.forward);
-        UpdateDotPosition(dotBehind, newPosition, Vector3.back);
+        forceCyclinderFollow();
     }
 
-    private void UpdateDotPosition(GameObject dot, Vector3 spherePosition, Vector3 offsetDirection)
+    private void forceCyclinderFollow()
     {
-        // Calculate the position for the dot based on the sphere's position and the offset direction.
-        Vector3 dotPosition = spherePosition + offsetDirection * 2.0f; // You can adjust the offset distance here.
-        dot.transform.position = dotPosition;
+        forceSphere1.transform.LookAt(forceSphere.position);
+        if ((forceSphere1.transform.position - forceSphere.position).magnitude > 1.0f)
+        {
+            forceSphere1.Translate(0.0f, 0.0f, 5 * Time.deltaTime);
+        }
+
+        targetTransform.transform.LookAt(forceSphere1.position);
+        if ((targetTransform.transform.position - forceSphere1.position).magnitude > 1.0f)
+        {
+            targetTransform.Translate(0.0f, 0.0f, 5 * Time.deltaTime);
+        }
+
+        forceSphere2.transform.LookAt(targetTransform.position);
+        if ((forceSphere2.transform.position - targetTransform.position).magnitude > 1.0f)
+        {
+            forceSphere2.Translate(0.0f, 0.0f, 5 * Time.deltaTime);
+        }
+
+        forceSphere3.transform.LookAt(forceSphere2.position);
+        if ((forceSphere3.transform.position - forceSphere2.position).magnitude > 1.0f)
+        {
+            forceSphere3.Translate(0.0f, 0.0f, 5 * Time.deltaTime);
+        }
+
     }
 
 }
