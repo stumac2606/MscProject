@@ -47,7 +47,6 @@ public class DLLImportTest : MonoBehaviour
     public float distanceThreshold = 1.8f;
 
     //variables for the regular attractive force with applying resistive force 
-    private float areaSize = 5.0f; // The size of the area in all three dimensions (5x5x5)
     public float timeInsideSphereForForce = 5.0f; // Time user is inside the sphere before resistive force is applied 
     public float constantForceDuration = 5.0f; // time for constant resistive force 
     public float maxRandomForceDurationLimit = 10.0f; // Maximum duration for the random force 
