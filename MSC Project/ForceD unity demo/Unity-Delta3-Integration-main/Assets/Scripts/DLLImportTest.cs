@@ -5,6 +5,8 @@ using UnityEngine;
 using static DLLImportTest;
 using System.Collections;
 using UnityEngine.ProBuilder.Shapes;
+using UnityEngine.UI;
+using TMPro;
 
 public class DLLImportTest : MonoBehaviour
 {
@@ -56,7 +58,6 @@ public class DLLImportTest : MonoBehaviour
     private bool applyingRegularForce = true;
     private bool isRandomForceOn = false;
 
-
     //Variables for repelling force 
     public float repelForceTest = 1.0f;
     private float repellingForceMultiplier = 1.0f;
@@ -75,7 +76,6 @@ public class DLLImportTest : MonoBehaviour
     private float amplitude;
     private float frequency;
     public GameObject spherePrefab;
-
 
     public Vector3 DhdPosition = Vector3.zero;
 
@@ -129,6 +129,7 @@ public class DLLImportTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
 
         Debug.Log("DLLImportTest Start method called");
         DhdOpen();
@@ -158,6 +159,8 @@ public class DLLImportTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+
         Debug.Log("DLLImportTest Update method called");
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -236,6 +239,7 @@ public class DLLImportTest : MonoBehaviour
                     if (Vector3.Distance(TargetSphere.transform.position, sphere.transform.position) <= 2.0f)
                     {
                         ApplyRepellingForceToSpheres(sphere);
+                        //ApplyAttractiveForceToSpheres(sphere);
                     }
 
                 }
@@ -244,6 +248,8 @@ public class DLLImportTest : MonoBehaviour
 
         }
     }
+
+    
 
     private void ApplyAttractiveForce()
     {
@@ -283,10 +289,30 @@ public class DLLImportTest : MonoBehaviour
             ApplyForceToHapticDevice(repellingForceVector);
         }
     }
+    private void ApplyAttractiveForceToSpheres(GameObject sphere)
+    {
+        double px = 0, py = 0, pz = 0;
+        if (dhdGetPosition(ref px, ref py, ref pz, defaultId) >= 0)
+        {
+            Vector3 heading = sphere.transform.position - EndEffector.transform.position;
+            float distance = heading.magnitude;
+            Vector3 direction = heading / distance;
+            Vector3 force = new Vector3((float)direction.x * (float)forceTest, (float)direction.y * (float)forceTest, (float)direction.z * (float)forceTest);
+
+            if (distance < distanceThreshold)
+            {
+                ApplyForceToHapticDevice(Vector3.zero);
+            }
+            else
+            {
+                ApplyForceToHapticDevice(force);
+            }
+        }
+
+    }
 
     private void ApplyRepellingForceToSpheres(GameObject sphere)
     {
-        // Calculate repelling force based on distance from forceSphere
         //float repellingForce = CalculateRepellingForceFromForceSphere();
         Vector3 heading = sphere.transform.position - EndEffector.transform.position;
         float distance = heading.magnitude;
