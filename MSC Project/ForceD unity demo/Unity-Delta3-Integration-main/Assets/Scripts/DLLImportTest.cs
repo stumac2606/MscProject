@@ -77,6 +77,8 @@ public class DLLImportTest : MonoBehaviour
     private float frequency;
     public GameObject spherePrefab;
 
+    
+
     public Vector3 DhdPosition = Vector3.zero;
 
     IntPtr defaultId = new IntPtr(1);
@@ -249,8 +251,6 @@ public class DLLImportTest : MonoBehaviour
         }
     }
 
-    
-
     private void ApplyAttractiveForce()
     {
         double px = 0, py = 0, pz = 0;
@@ -403,7 +403,7 @@ public class DLLImportTest : MonoBehaviour
                 // Apply position constraints
                 newPosition.x = Mathf.Clamp(newPosition.x, -10f, 10f);
                 newPosition.y = Mathf.Clamp(newPosition.y, 0f, 10f);
-                newPosition.z = Mathf.Clamp(newPosition.z, -10f, 10f);
+                newPosition.z = Mathf.Clamp(newPosition.z, -18f, 18f);
 
                 TargetSphere.transform.position = newPosition;
             }
@@ -411,6 +411,7 @@ public class DLLImportTest : MonoBehaviour
     }
     private void GenerateRandomTarget()
     {
+        
         Vector3 newTarget;
 
         do
@@ -418,17 +419,23 @@ public class DLLImportTest : MonoBehaviour
             newTarget = initialPosition + new Vector3(
                 UnityEngine.Random.Range(-10, 10),
                 UnityEngine.Random.Range(0, 10),
-                UnityEngine.Random.Range(-10, 10)
+                UnityEngine.Random.Range(-18, 18)
             );
 
-            if (newTarget.x > 9 || newTarget.y > 9 || newTarget.z > 9)
+            if (newTarget.x > 9 || newTarget.y > 9 || newTarget.z > 17)
             {
-                newTarget = new Vector3(0f, 2f, 0f);
+                newTarget = new Vector3(
+                UnityEngine.Random.Range(-5, 5),
+                UnityEngine.Random.Range(0, 5),
+                UnityEngine.Random.Range(-9, 9));
             }
 
-            if (newTarget.x < -9 || newTarget.y < 0 || newTarget.z < -9)
+            if (newTarget.x < -9 || newTarget.y < 0 || newTarget.z < -17)
             {
-                newTarget = new Vector3(0f, 5f, 0f);
+                newTarget = new Vector3(
+                UnityEngine.Random.Range(-5, 5),
+                UnityEngine.Random.Range(0, 5),
+                UnityEngine.Random.Range(-9, 9));
             }
 
 
@@ -448,7 +455,7 @@ public class DLLImportTest : MonoBehaviour
     private void GenerateSpheresAlongPath()
     {
         float totalDistance = Vector3.Distance(initialPosition, targetPosition);
-        int numSpheres = Mathf.FloorToInt(totalDistance / 0.7f);
+        int numSpheres = Mathf.FloorToInt(totalDistance / 0.5f);
 
         for (int i = 0; i <= numSpheres; i++)
         {
