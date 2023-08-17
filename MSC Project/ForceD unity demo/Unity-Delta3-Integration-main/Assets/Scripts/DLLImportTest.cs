@@ -7,6 +7,7 @@ using System.Collections;
 using UnityEngine.ProBuilder.Shapes;
 using UnityEngine.UI;
 using TMPro;
+using System.Diagnostics;
 
 public class DLLImportTest : MonoBehaviour
 {
@@ -77,7 +78,7 @@ public class DLLImportTest : MonoBehaviour
     private float frequency;
     public GameObject spherePrefab;
 
-    
+
 
     public Vector3 DhdPosition = Vector3.zero;
 
@@ -122,16 +123,17 @@ public class DLLImportTest : MonoBehaviour
     [DllImport("dhd64.dll")]
     extern static int dhdSetForce(double fx, double fy, double fz, IntPtr id);
 
+    public Vector3 oldforce = new Vector3(0.0f, 0.0f, 0.0f);
 
 
     // Pooled list of spheres
-    GameObject[] spheres = new GameObject[30];
+    GameObject[] spheres = new GameObject[60];
 
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
 
         Debug.Log("DLLImportTest Start method called");
         DhdOpen();
@@ -161,7 +163,7 @@ public class DLLImportTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
 
         Debug.Log("DLLImportTest Update method called");
         if (Input.GetKeyDown(KeyCode.C))
@@ -238,7 +240,7 @@ public class DLLImportTest : MonoBehaviour
                 foreach (GameObject sphere in spheres)
                 {
 
-                    if (Vector3.Distance(TargetSphere.transform.position, sphere.transform.position) <= 2.0f)
+                    if (Vector3.Distance(TargetSphere.transform.position, sphere.transform.position) <= 2.5f)
                     {
                         ApplyRepellingForceToSpheres(sphere);
                         //ApplyAttractiveForceToSpheres(sphere);
@@ -282,7 +284,7 @@ public class DLLImportTest : MonoBehaviour
             float distance = heading.magnitude;
             Vector3 direction = heading.normalized;
 
-            float repellingForce = CalculateRepellingForce(distance);
+            float repellingForce = CalculateRepellingForceTarget(distance);
 
             Vector3 repellingForceVector = -direction * repellingForce * repellingForceMultiplier;
 
@@ -334,6 +336,9 @@ public class DLLImportTest : MonoBehaviour
     private void ApplyForceToHapticDevice(Vector3 force)
     {
         dhdSetForce(force.x, force.z, force.y, defaultId);
+
+        //dhdSetForce((force.x+ oldforce.x)/2.0, (force.z+ oldforce.z)/2.0, (force.y+ oldforce.y)/2.0, defaultId);
+        // oldforce = force;
     }
 
 
@@ -347,12 +352,22 @@ public class DLLImportTest : MonoBehaviour
 
         return repellingForce;
     }
+    private float CalculateRepellingForceTarget(float distance)
+    {
+        float maxDistanceCalc = maxRepellingforceDistance * distanceThreshold;
+        float clampedDistance = Mathf.Clamp(distance, distanceThreshold, maxDistanceCalc);
+
+        float normalizedForce = 1.0f - (clampedDistance - distanceThreshold) / (maxDistanceCalc - distanceThreshold);
+        float repellingForce = normalizedForce * 2.0f;
+
+        return repellingForce;
+    }
 
     private Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
     {
         float t2 = t * t;
         float t3 = t2 * t;
-
+        //fdgrgef
         Vector3 v0 = (p2 - p0) * 0.5f;
         Vector3 v1 = (p3 - p1) * 0.5f;
 
@@ -411,7 +426,7 @@ public class DLLImportTest : MonoBehaviour
     }
     private void GenerateRandomTarget()
     {
-        
+
         Vector3 newTarget;
 
         do
@@ -446,7 +461,7 @@ public class DLLImportTest : MonoBehaviour
         journeyLength = Vector3.Distance(transform.position, targetPosition);
         moving = true;
         xyz = UnityEngine.Random.Range(0, 3);
-        amplitude = UnityEngine.Random.Range(1f, 5.0f);
+        amplitude = UnityEngine.Random.Range(2f, 6.0f);
         frequency = UnityEngine.Random.Range(0.5f, 3.0f);
 
 
@@ -455,7 +470,7 @@ public class DLLImportTest : MonoBehaviour
     private void GenerateSpheresAlongPath()
     {
         float totalDistance = Vector3.Distance(initialPosition, targetPosition);
-        int numSpheres = Mathf.FloorToInt(totalDistance / 0.5f);
+        int numSpheres = Mathf.FloorToInt(totalDistance / 2f);
 
         for (int i = 0; i <= numSpheres; i++)
         {
@@ -475,7 +490,7 @@ public class DLLImportTest : MonoBehaviour
                 spherePosition.z += Mathf.Sin(journeyFraction * Mathf.PI * 2 * frequency) * amplitude;
             }
 
-            if (i < 20)
+            if (i < 60)
             {
                 spheres[i].transform.position = spherePosition;
                 spheres[i].SetActive(true);
