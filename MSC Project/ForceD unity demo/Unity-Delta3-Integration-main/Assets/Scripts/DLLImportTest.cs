@@ -135,16 +135,16 @@ public class DLLImportTest : MonoBehaviour
     {
 
 
-        Debug.Log("DLLImportTest Start method called");
+       // Debug.Log("DLLImportTest Start method called");
         DhdOpen();
         if (dhdEnableForce(new UIntPtr(1), defaultId) >= 0)
         {
-            Debug.Log("Forces set to on");
+            //Debug.Log("Forces set to on");
             forcesOn = true;
         }
         else
         {
-            Debug.LogError("ERROR SETTING FORCES TO ON");
+            //Debug.LogError("ERROR SETTING FORCES TO ON");
         }
         // Instantiate your spheres once
         for (int i = 0; i < spheres.Length; i++)
@@ -165,7 +165,7 @@ public class DLLImportTest : MonoBehaviour
     {
 
 
-        Debug.Log("DLLImportTest Update method called");
+        //Debug.Log("DLLImportTest Update method called");
         if (Input.GetKeyDown(KeyCode.C))
         {
             DhdClose();
@@ -528,13 +528,13 @@ public class DLLImportTest : MonoBehaviour
             DeviceStatus = deviceStatus.DELTA_CLOSED;
             IntPtr intPtr = dhdErrorGetLastStr();
             string myErrorString = Marshal.PtrToStringAnsi(intPtr);
-            Debug.LogError(String.Format("error: cannot open device {0}\n", myErrorString));
+            //Debug.LogError(String.Format("error: cannot open device {0}\n", myErrorString));
             dhdSleep(2.0);
             return -1;
         }
         else
         {
-            Debug.Log(String.Format("Device Succesfully Opened"));
+            //Debug.Log(String.Format("Device Succesfully Opened"));
             DeviceStatus = deviceStatus.DELTA_OPEN;
             UpdateDHDStatus();
             return 0;
@@ -552,13 +552,13 @@ public class DLLImportTest : MonoBehaviour
         {
             IntPtr intPtr = dhdErrorGetLastStr();
             string myErrorString = Marshal.PtrToStringAnsi(intPtr);
-            Debug.LogError(String.Format("error: Failed to stop device {0}\n", myErrorString));
+            //Debug.LogError(String.Format("error: Failed to stop device {0}\n", myErrorString));
             return -1;
         }
         else
         {
             DeviceStatus = deviceStatus.DELTA_CLOSED;
-            Debug.Log(String.Format("Device Closed!"));
+            //Debug.Log(String.Format("Device Closed!"));
             return 0;
         }
     }
@@ -594,7 +594,7 @@ public class DLLImportTest : MonoBehaviour
         double pz = 0;
         if (dhdGetPosition(ref px, ref py, ref pz, defaultId) < 0)
         {
-            Debug.LogError("ERROR GETTING POSITION");
+            //Debug.LogError("ERROR GETTING POSITION");
             return -1;
         }
         else
@@ -614,7 +614,7 @@ public class DLLImportTest : MonoBehaviour
             dhdEnableForce(new UIntPtr(1), defaultId);
             if (dhdSetBrakes(1, defaultId) < 0)
             {
-                Debug.LogError("ERROR TURNING ON BRAKE");
+                //Debug.LogError("ERROR TURNING ON BRAKE");
                 success = -1;
             }
             else
@@ -627,7 +627,7 @@ public class DLLImportTest : MonoBehaviour
             dhdEnableForce(new UIntPtr(0), defaultId);
             if (dhdSetBrakes(0, defaultId) < 0)
             {
-                Debug.LogError("ERROR TURNING OFF BRAKE");
+                //Debug.LogError("ERROR TURNING OFF BRAKE");
                 success = -1;
             }
             else
@@ -643,7 +643,7 @@ public class DLLImportTest : MonoBehaviour
     {
         IntPtr intPtr = dhdErrorGetLastStr();
         string myErrorString = Marshal.PtrToStringAnsi(intPtr);
-        Debug.LogError(String.Format("Last Error: {0}\n", myErrorString));
+        //Debug.LogError(String.Format("Last Error: {0}\n", myErrorString));
     }
 
     public void SetDHDGravity(double g)
