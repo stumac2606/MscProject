@@ -1,0 +1,36 @@
+Intro
+	intro
+	background
+	lit rev
+
+Method
+	participants (paragraph to describe who the participants were etc.)
+	
+	experimental setup 
+	(hardware and software setup including desktop)
+
+	experimental design 
+	and procedure (your trial structures e.g. phases and how long 	each phase was and how long each trial was and what they did 	throughout the experiment, include a short description of a 	typical trial)can show this as a figure (phases)
+
+	data analysis
+	Here say what the data was you collected i.e. frame rate/ frame by 	frame at 100 Hz
+	What did you do with the data i.e. your analysis script in python
+	
+Results
+	Only descriptions of your data i.e. what you saw in each graph and 	how you got to those graphs, including what statistical tests you 	performed? 
+
+	Do this in a logically hierarchical way:
+	1st: you show a typical trial data i.e. over the 15 seconds 	trajectories 
+	
+	Then you averaged the performance of each user across each phase 	then show the bar graph
+
+Discussions
+	Summary of everything from the start 
+
+	Interpret your data why you got those results you think, in context 	of the literature 
+
+	Limitations of your setup/results etc. participants 
+
+	Future, what could be done etc. 
+
+	Nice and positive paragraph stating what you did and the 	contributions your study provided 
